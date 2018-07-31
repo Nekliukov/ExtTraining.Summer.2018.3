@@ -6,11 +6,12 @@ namespace No7.Solution.Console
     {
         static void Main(string[] args)
         {
-            var tradeStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("No7.Solution.Console.trades.txt");
+            var tradeStream = Assembly.GetExecutingAssembly().
+                GetManifestResourceStream("No7.Solution.Console.trades.txt");
 
-            var tradeProcessor = new TradeHandler();
+            TradeParser tradeProcessor = new No7.Solution.TradeParser();
 
-            tradeProcessor.HandleTrades(tradeStream);
+            tradeProcessor.Parse(tradeStream, "TradeData");
         }
     }
 }

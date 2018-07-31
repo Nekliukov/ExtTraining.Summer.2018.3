@@ -1,4 +1,4 @@
-﻿namespace No7.Solution.Console
+﻿namespace No7.Solution
 {
     internal class TradeRecord
     {
