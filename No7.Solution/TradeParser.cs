@@ -9,7 +9,7 @@ using System.Threading;
 namespace No7.Solution
 {
     // class name was changed for better understanding
-    public class TradeParser: Parser
+    public partial class TradeParser: Parser
     {
         #region Constants
 
@@ -17,6 +17,7 @@ namespace No7.Solution
         private const int FIELDS_NUM = 3;
         private const int CURRENCIES_LEN = 6;
         private const float LOT_SIZE = 100000f;
+        private readonly IMessageReporter reporter;
 
         // Default culture info in case of misunderstanding
         private const string DEFAULT_CULTURE_INFO = "en-US";
@@ -46,8 +47,12 @@ namespace No7.Solution
         /// Initializes a new instance of the <see cref="TradeParser"/> class.
         /// </summary>
         /// <param name="cultureInfo">The culture information.</param>
-        public TradeParser(string cultureInfo) 
-            => Thread.CurrentThread.CurrentCulture = new CultureInfo(cultureInfo);
+        public TradeParser(string cultureInfo, IMessageReporter reporter = null)
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo(cultureInfo);
+            this.reporter = reporter ?? new DefaultReporter();
+        }
+        
 
         #endregion
 
@@ -97,7 +102,7 @@ namespace No7.Solution
                 connection.Close();
             }
 
-            Console.WriteLine("INFO: {0} trades processed", trades.Count);
+            reporter.ShowMessage($"INFO: {trades.Count} trades processed");
         }
 
         #endregion
@@ -181,32 +186,29 @@ namespace No7.Solution
 
             if (fields.Length != FIELDS_NUM)
             {
-                Console.WriteLine("WARN: Line {0} malformed. Only {1} field(s) found.", lineCount,
-                    fields.Length);
+                reporter.ShowMessage($"WARN: Line {lineCount} malformed.Only {fields.Length} field(s) found.");
                 return false;
             }
 
             if (fields[0].Length != CURRENCIES_LEN)
             {
-                Console.WriteLine("WARN: Trade currencies on line {0} malformed: '{1}'", lineCount,
-                    fields[0]);
+                reporter.ShowMessage($"WARN: Trade currencies on line {lineCount} malformed: '{fields[0]}'");
                 return false;
             }
 
             if (!int.TryParse(fields[1], out tradeAmount))
             {
-                Console.WriteLine("WARN: Trade amount on line {0} not a valid integer: '{1}'", lineCount,
-                    fields[1]);
+                reporter.ShowMessage($"WARN: Trade amount on line {lineCount} not a valid integer: '{fields[1]}'");
             }
 
             if (!decimal.TryParse(fields[2], out tradePrice))
             {
-                Console.WriteLine("WARN: Trade price on line {0} not a valid decimal: '{1}'", lineCount,
-                    fields[2]);
+                reporter.ShowMessage($"WARN: Trade price on line {lineCount} not a valid decimal: '{fields[2]}'");
             }
 
             return true;
         }
+
         #endregion
     }
 }
